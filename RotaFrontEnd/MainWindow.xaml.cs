@@ -39,9 +39,7 @@ namespace RotaFrontEnd
 
             LoadRotaPeople();
 
-            personListBox.ItemsSource = rota.RotaPersons;
-
-            personListBox.SelectionChanged += personListBoxSelectionChanged;
+          
 
             comboBox.SelectedIndex = 0;
 
@@ -55,6 +53,21 @@ namespace RotaFrontEnd
             ci.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
             Thread.CurrentThread.CurrentCulture = ci;
 
+
+            staffDataGrid.CellEditEnding += StaffDataGrid_CellEditEnding;
+
+            staffDataGrid.AddingNewItem += StaffDataGrid_AddingNewItem;
+
+        }
+
+        private void StaffDataGrid_AddingNewItem(object sender, AddingNewItemEventArgs e)
+        {
+            e.NewItem = new SimpleRotaPerson();
+        }
+
+        private void StaffDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            SaveStaffRoster();
         }
 
         private void dateListBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -64,27 +77,15 @@ namespace RotaFrontEnd
 
         private void dateViewChanged(object sender, SelectionChangedEventArgs e)
         {
-            var person = personListBox.SelectedItem as SimpleRotaPerson;
-            currentPersonSelection = person;
-            if (person != null)
-            {
-                RefreshDateBox(person);
-            }
+            //var person = personListBox.SelectedItem as SimpleRotaPerson;
+            //currentPersonSelection = person;
+            //if (person != null)
+            //{
+            //    RefreshDateBox(person);
+            //}
         }
 
-        private void personListBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var person = personListBox.SelectedItem as SimpleRotaPerson;
-            currentPersonSelection = person;
-            if (person != null)
-            {
-                textBox.Text = person.Name;
-                checkBox.IsChecked = person.IsRegistrar;
-
-                RefreshDateBox(person);
-            }
-
-        }
+       
 
         private void RefreshDateBox(SimpleRotaPerson person)
         {
@@ -119,34 +120,11 @@ namespace RotaFrontEnd
                 dateListBox.Items.Add(d.DateTime);
         }
 
-        private void addRotaPerson(object sender, RoutedEventArgs e)
-        {
-            string name = textBox.Text;
-            bool isRegistrar = checkBox.IsChecked.Value == true;
+       
 
-            SimpleRotaPerson person = new SimpleRotaPerson(name, rota);
-            person.IsRegistrar = isRegistrar;
+       
 
-            rota.AddPersonToRota(person);
-
-            ClearSelection();
-
-        }
-
-        private void ClearSelection()
-        {
-            textBox.Clear();
-            checkBox.IsChecked = false;
-        }
-
-        private void removeRotaPerson(object sender, RoutedEventArgs e)
-        {
-            SimpleRotaPerson selected = personListBox.SelectedItem as SimpleRotaPerson;
-            rota.RotaPersons.Remove(selected);
-            ClearSelection();
-
-
-        }
+     
 
         private void addDate(object sender, RoutedEventArgs e)
         {
@@ -228,7 +206,12 @@ namespace RotaFrontEnd
 
         private void savePeopleButton(object sender, RoutedEventArgs e)
         {
+            SaveStaffRoster();
 
+        }
+
+        private void SaveStaffRoster()
+        {
             XmlSerializer xsSubmit = new XmlSerializer(typeof(RotaPersonCollection));
             var xml = "";
 
@@ -253,7 +236,6 @@ namespace RotaFrontEnd
             }
 
             File.WriteAllText(personSaveFile, xml);
-
         }
 
         private void LoadRotaPeople()
@@ -267,6 +249,9 @@ namespace RotaFrontEnd
 
             foreach (SimpleRotaPerson person in people.RotaPeople)
                 rota.RotaPersons.Add(person);
+
+            staffDataGrid.ItemsSource = people.RotaPeople;
+            
 
 
             reader.Close();

@@ -40,10 +40,12 @@ namespace RotaLib
         }
     }
 
+    public class RotaPersonCollection<SimpleRotaPerson> : ObservableCollection<SimpleRotaPerson> { }
+
     public class SimpleFridayRota
     {
-
-        public ObservableCollection<SimpleRotaPerson> RotaPersons { get; private set; }
+        
+        public RotaPersonCollection<SimpleRotaPerson> RotaPersons { get; set; }
         public ObservableCollection<RotaResult> RotaResults { get; set; }
         public Dictionary<RotaDate, SimpleRotaPerson> OnCallRota;
         public Dictionary<RotaDate, SimpleRotaPerson> SurgeryRota;
@@ -55,7 +57,7 @@ namespace RotaLib
         public SimpleFridayRota()
         {
 
-            RotaPersons = new ObservableCollection<SimpleRotaPerson>();
+            RotaPersons = new RotaPersonCollection<SimpleRotaPerson>();
 
             OnCallRota = new Dictionary<RotaDate, SimpleRotaPerson>();
             SurgeryRota = new Dictionary<RotaDate, SimpleRotaPerson>();
