@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotaCLI", "RotaPrototype\RotaCLI.csproj", "{6E03D78A-591B-4C97-A136-6F2701909B11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotaFrontEnd", "RotaFrontEnd\RotaFrontEnd.csproj", "{BB1AA771-BF50-401A-98D5-D11FA0472441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotaLib", "RotaLib\RotaLib.csproj", "{1D2B9D0D-C888-4968-9932-F36FC46C6E7D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E03D78A-591B-4C97-A136-6F2701909B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E03D78A-591B-4C97-A136-6F2701909B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E03D78A-591B-4C97-A136-6F2701909B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E03D78A-591B-4C97-A136-6F2701909B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB1AA771-BF50-401A-98D5-D11FA0472441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB1AA771-BF50-401A-98D5-D11FA0472441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB1AA771-BF50-401A-98D5-D11FA0472441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB1AA771-BF50-401A-98D5-D11FA0472441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D2B9D0D-C888-4968-9932-F36FC46C6E7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D2B9D0D-C888-4968-9932-F36FC46C6E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D2B9D0D-C888-4968-9932-F36FC46C6E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D2B9D0D-C888-4968-9932-F36FC46C6E7D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
