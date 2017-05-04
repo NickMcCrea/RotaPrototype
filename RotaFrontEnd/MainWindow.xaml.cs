@@ -108,15 +108,15 @@ namespace RotaFrontEnd
             }
         }
 
-        private void PopulateListBoxWithSpecificRotaDates(SimpleRotaPerson currentPersonSelection, Dictionary<DateTime, SimpleRotaPerson> rota)
+        private void PopulateListBoxWithSpecificRotaDates(SimpleRotaPerson currentPersonSelection, Dictionary<RotaDate, SimpleRotaPerson> rota)
         {
             dateListBox.ItemsSource = null;
             dateListBox.Items.Clear();
 
             var knownOnCallDates = rota.Keys.ToList().FindAll(x => rota[x].Name == currentPersonSelection.Name);
 
-            foreach (DateTime d in knownOnCallDates)
-                dateListBox.Items.Add(d);
+            foreach (RotaDate d in knownOnCallDates)
+                dateListBox.Items.Add(d.DateTime);
         }
 
         private void addRotaPerson(object sender, RoutedEventArgs e)
@@ -166,13 +166,13 @@ namespace RotaFrontEnd
                     if (leavePicker.SelectedDate.HasValue)
                     {
                         if (comboBox.SelectedIndex == 1)
-                            rota.SetRotaForDate(rota.OnCallRota, leavePicker.SelectedDate.Value, currentPersonSelection);
+                            rota.SetRotaForDate(rota.OnCallRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
                         if (comboBox.SelectedIndex == 2)
-                            rota.SetRotaForDate(rota.OnCallRegistrarCoverRota, leavePicker.SelectedDate.Value, currentPersonSelection);
+                            rota.SetRotaForDate(rota.OnCallRegistrarCoverRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
                         if (comboBox.SelectedIndex == 3)
-                            rota.SetRotaForDate(rota.SurgeryRota, leavePicker.SelectedDate.Value, currentPersonSelection);
+                            rota.SetRotaForDate(rota.SurgeryRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
                         if (comboBox.SelectedIndex == 4)
-                            rota.SetRotaForDate(rota.ProtectedRota, leavePicker.SelectedDate.Value, currentPersonSelection);
+                            rota.SetRotaForDate(rota.ProtectedRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
 
 
                     }
@@ -200,14 +200,14 @@ namespace RotaFrontEnd
                     if (leavePicker.SelectedDate.HasValue)
                     {
                         if (comboBox.SelectedIndex == 1)
-                            rota.ClearRotaForDate(rota.OnCallRota, leavePicker.SelectedDate.Value);
+                            rota.ClearRotaForDate(rota.OnCallRota, new RotaDate(leavePicker.SelectedDate.Value));
                         if (comboBox.SelectedIndex == 2)
-                            rota.ClearRotaForDate(rota.OnCallRegistrarCoverRota, leavePicker.SelectedDate.Value);
+                            rota.ClearRotaForDate(rota.OnCallRegistrarCoverRota, new RotaDate(leavePicker.SelectedDate.Value));
                         if (comboBox.SelectedIndex == 3)
-                            rota.ClearRotaForDate(rota.SurgeryRota, leavePicker.SelectedDate.Value);
+                            rota.ClearRotaForDate(rota.SurgeryRota, new RotaDate(leavePicker.SelectedDate.Value));
 
                         if (comboBox.SelectedIndex == 4)
-                            rota.ClearRotaForDate(rota.ProtectedRota, leavePicker.SelectedDate.Value);
+                            rota.ClearRotaForDate(rota.ProtectedRota, new RotaDate(leavePicker.SelectedDate.Value));
 
 
 
@@ -274,7 +274,6 @@ namespace RotaFrontEnd
             rota.DeserializeHistoricalRota();
 
         }
-
 
         private void saveHistoricalRota(object sender, RoutedEventArgs e)
         {

@@ -1,0 +1,23 @@
+﻿
+New Requirements
+
+- if Juls / K / Chris are on call, there should also be cover (if available)
+	- priority relative to surgery / protected?
+	- can someone be more than one? Fundamental assumption change
+
+- Add manual days in advance
+
+- Normalise date format in all sections of the UI
+
+- Placeholder "X" for locums, not included in the rest of the rota
+
+- Can there be a "swap" that is equal to a surgery?
+	- not sure what this means
+
+- A way of overriding the rota's choices via manual changes, and preserving these
+	- e.g. retrospectively alter a past date without affecting future rota generation if it is locked in
+	- Manually able to put in people in certain future dates and have these preserved / worked around
+
+- Auto import of annual leave
+
+

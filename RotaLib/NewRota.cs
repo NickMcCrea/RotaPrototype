@@ -11,15 +11,29 @@ using System.Xml.Serialization;
 
 namespace RotaLib
 {
+    public struct RotaDate
+    {
+        public DateTime DateTime { get; set; }
+        public bool Locked { get; set; }
+
+        public RotaDate(DateTime date)
+        {
+            DateTime = date;
+            Locked = false;
+        }
+
+ 
+    }
+
     public class SimpleFridayRota
     {
 
         public ObservableCollection<SimpleRotaPerson> RotaPersons { get; private set; }
 
-        public Dictionary<DateTime, SimpleRotaPerson> OnCallRota;
-        public Dictionary<DateTime, SimpleRotaPerson> SurgeryRota;
-        public Dictionary<DateTime, SimpleRotaPerson> ProtectedRota;
-        public Dictionary<DateTime, SimpleRotaPerson> OnCallRegistrarCoverRota;
+        public Dictionary<RotaDate, SimpleRotaPerson> OnCallRota;
+        public Dictionary<RotaDate, SimpleRotaPerson> SurgeryRota;
+        public Dictionary<RotaDate, SimpleRotaPerson> ProtectedRota;
+        public Dictionary<RotaDate, SimpleRotaPerson> OnCallRegistrarCoverRota;
 
 
 
@@ -28,10 +42,10 @@ namespace RotaLib
 
             RotaPersons = new ObservableCollection<SimpleRotaPerson>();
 
-            OnCallRota = new Dictionary<DateTime, SimpleRotaPerson>();
-            SurgeryRota = new Dictionary<DateTime, SimpleRotaPerson>();
-            ProtectedRota = new Dictionary<DateTime, SimpleRotaPerson>();
-            OnCallRegistrarCoverRota = new Dictionary<DateTime, SimpleRotaPerson>();
+            OnCallRota = new Dictionary<RotaDate, SimpleRotaPerson>();
+            SurgeryRota = new Dictionary<RotaDate, SimpleRotaPerson>();
+            ProtectedRota = new Dictionary<RotaDate, SimpleRotaPerson>();
+            OnCallRegistrarCoverRota = new Dictionary<RotaDate, SimpleRotaPerson>();
 
         }
 
@@ -42,7 +56,7 @@ namespace RotaLib
             RotaPersons.Add(p);
         }
 
-        public void SetRotaForDate(Dictionary<DateTime, SimpleRotaPerson> rota, DateTime value, SimpleRotaPerson p)
+        public void SetRotaForDate(Dictionary<RotaDate, SimpleRotaPerson> rota, RotaDate value, SimpleRotaPerson p)
         {
             if (rota.ContainsKey(value))
                 rota[value] = p;
@@ -50,7 +64,7 @@ namespace RotaLib
                 rota.Add(value, p);
         }
 
-        public void ClearRotaForDate(Dictionary<DateTime, SimpleRotaPerson> rota, DateTime value)
+        public void ClearRotaForDate(Dictionary<RotaDate, SimpleRotaPerson> rota, RotaDate value)
         {
             if (rota.ContainsKey(value))
                 rota.Remove(value);
@@ -81,7 +95,7 @@ namespace RotaLib
             var fridays = GetFridays(currentDate, endDate).ToList();
 
 
-            foreach (DateTime friday in fridays)
+            foreach (RotaDate friday in fridays)
             {
                 //is Registrar available?
                 if (registrar.IsAvailable(friday))
@@ -127,22 +141,23 @@ namespace RotaLib
 
         }
 
-        private void ClearForwardDateFromRota(Dictionary<DateTime, SimpleRotaPerson> rota)
+        private void ClearForwardDateFromRota(Dictionary<RotaDate, SimpleRotaPerson> rota)
         {
             var keyList = rota.Keys.ToList();
             for (int i = 0; i < keyList.Count; i++)
             {
-                DateTime friday = keyList[i];
+                RotaDate r = keyList[i];
+                DateTime friday = keyList[i].DateTime;
 
                 //future date - remove it
                 if (friday > DateTime.Now.Date)
                 {
-                    rota.Remove(friday);
+                    rota.Remove(r);
                 }
             }
         }
 
-        private void DetermineBestAvailable(DateTime friday, Dictionary<DateTime, SimpleRotaPerson> rotaToFill, params Dictionary<DateTime, SimpleRotaPerson>[] rotasToAvoidClash)
+        private void DetermineBestAvailable(RotaDate friday, Dictionary<RotaDate, SimpleRotaPerson> rotaToFill, params Dictionary<RotaDate, SimpleRotaPerson>[] rotasToAvoidClash)
         {
 
             SimpleRotaPerson leastOnCall = null;
@@ -154,7 +169,7 @@ namespace RotaLib
                     continue;
 
                 bool clash = false;
-                foreach (Dictionary<DateTime, SimpleRotaPerson> clashRota in rotasToAvoidClash)
+                foreach (Dictionary<RotaDate, SimpleRotaPerson> clashRota in rotasToAvoidClash)
                 {
                     if (clashRota.ContainsKey(friday))
                         if (clashRota[friday] == person)
@@ -182,12 +197,12 @@ namespace RotaLib
 
         }
 
-        private int GetRotaCount(SimpleRotaPerson person, Dictionary<DateTime, SimpleRotaPerson> rotaToFill)
+        private int GetRotaCount(SimpleRotaPerson person, Dictionary<RotaDate, SimpleRotaPerson> rotaToFill)
         {
             return rotaToFill.Count(x => x.Value == person);
         }
 
-        static IEnumerable<DateTime> GetFridays(DateTime startdate, DateTime enddate)
+        static IEnumerable<RotaDate> GetFridays(DateTime startdate, DateTime enddate)
         {
             // step forward to the first friday
             while (startdate.DayOfWeek != DayOfWeek.Friday)
@@ -195,7 +210,7 @@ namespace RotaLib
 
             while (startdate < enddate)
             {
-                yield return startdate;
+                yield return new RotaDate(startdate);
                 startdate = startdate.AddDays(7);
             }
         }
@@ -210,7 +225,7 @@ namespace RotaLib
 
             var fridays = GetFridays(currentDate, endDate).ToList();
 
-            foreach (DateTime friday in fridays)
+            foreach (RotaDate friday in fridays)
             {
 
                 string onCallName = "TBD";
@@ -228,7 +243,7 @@ namespace RotaLib
                     protectedName = ProtectedRota[friday].Name;
 
 
-                s.AppendLine(friday.ToShortDateString() + ": "
+                s.AppendLine(friday.DateTime.ToShortDateString() + ": "
                     + "On Call - " + onCallName + "     "
                     + "Cover - " + coverName + "     "
                     + "Surgery - " + surgeryName + "     "
@@ -273,15 +288,15 @@ namespace RotaLib
 
         }
 
-        private void SaveRota(Dictionary<DateTime,SimpleRotaPerson> rota, string fileName)
+        private void SaveRota(Dictionary<RotaDate, SimpleRotaPerson> rota, string fileName)
         {
             StringBuilder s = new StringBuilder();
-            foreach (DateTime d in rota.Keys)
+            foreach (RotaDate d in rota.Keys)
             {
-                if (d.Date < DateTime.Now.Date)
+                if (d.DateTime.Date < DateTime.Now.Date)
                 {
                     //we want to serialize
-                    s.AppendLine(d.ToShortDateString() + "," + rota[d].Name);
+                    s.AppendLine(d.DateTime.ToShortDateString() + "," + rota[d].Name);
                 }
             }
             File.WriteAllText(fileName, s.ToString());
@@ -296,7 +311,7 @@ namespace RotaLib
 
         }
 
-        private void LoadRota(Dictionary<DateTime, SimpleRotaPerson> rota, string fileName)
+        private void LoadRota(Dictionary<RotaDate, SimpleRotaPerson> rota, string fileName)
         {
 
             if (!File.Exists(fileName))
@@ -313,7 +328,7 @@ namespace RotaLib
                 DateTime d = DateTime.Parse(lineSplit[0]);
                 string name = lineSplit[1];
 
-                rota.Add(d, RotaPersons.First(x => x.Name == name));
+                rota.Add(new RotaDate(d), RotaPersons.First(x => x.Name == name));
             }
         }
     }
@@ -356,9 +371,9 @@ namespace RotaLib
                 AnnualLeaveDates.Add(date);
         }
 
-        public bool IsAvailable(DateTime s)
+        public bool IsAvailable(RotaDate s)
         {
-            return !AnnualLeaveDates.Contains(s);
+            return !AnnualLeaveDates.Contains(s.DateTime);
         }
 
         public override string ToString()
