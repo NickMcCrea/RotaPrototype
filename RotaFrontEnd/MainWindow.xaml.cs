@@ -222,7 +222,8 @@ namespace RotaFrontEnd
         private void makeRota(object sender, RoutedEventArgs e)
         {
             rota.MakeRota();
-            textBox1.Text = rota.GetFullRotaPrintOut() + rota.GetRotaCountPrintOut();
+            textBox1.Text =  rota.GetRotaCountPrintOut();
+            dataGrid.ItemsSource = rota.RotaResults;
         }
 
         private void savePeopleButton(object sender, RoutedEventArgs e)

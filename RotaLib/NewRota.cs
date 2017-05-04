@@ -25,11 +25,26 @@ namespace RotaLib
  
     }
 
+    public class RotaResult
+    {
+        public string OnCall { get; set; }
+        public string Surgery { get; set; }
+        public string Protected { get; set; }
+        public string Cover { get; set; }
+        public DateTime Date { get; set; }
+        public bool Locked { get; set; }
+
+        public RotaResult(DateTime date)
+        {
+            Date = date;
+        }
+    }
+
     public class SimpleFridayRota
     {
 
         public ObservableCollection<SimpleRotaPerson> RotaPersons { get; private set; }
-
+        public ObservableCollection<RotaResult> RotaResults { get; set; }
         public Dictionary<RotaDate, SimpleRotaPerson> OnCallRota;
         public Dictionary<RotaDate, SimpleRotaPerson> SurgeryRota;
         public Dictionary<RotaDate, SimpleRotaPerson> ProtectedRota;
@@ -46,6 +61,7 @@ namespace RotaLib
             SurgeryRota = new Dictionary<RotaDate, SimpleRotaPerson>();
             ProtectedRota = new Dictionary<RotaDate, SimpleRotaPerson>();
             OnCallRegistrarCoverRota = new Dictionary<RotaDate, SimpleRotaPerson>();
+            RotaResults = new ObservableCollection<RotaResult>();
 
         }
 
@@ -73,7 +89,7 @@ namespace RotaLib
 
         public void MakeRota()
         {
-
+            RotaResults.Clear();
             ClearForwardRotas();
 
             //we'll attempt to make a fair rota from here on out, given what we know about 
@@ -97,10 +113,14 @@ namespace RotaLib
 
             foreach (RotaDate friday in fridays)
             {
+                RotaResults.Add(new RotaResult(friday.DateTime));
+
                 //is Registrar available?
                 if (registrar.IsAvailable(friday))
                 {
+                    
                     OnCallRota.Add(friday, registrar);
+                    RotaResults.First(x => x.Date == friday.DateTime).OnCall = registrar.Name;
 
                     //next do the on call cover.
                     DetermineBestAvailable(friday, OnCallRegistrarCoverRota, OnCallRota);
@@ -115,7 +135,7 @@ namespace RotaLib
                 }
                 else
                 {
-
+                    //registrar unavailable - look for best fit
                     DetermineBestAvailable(friday, OnCallRota);
 
                     //next do surgery, don't clash with on-call cover
@@ -159,6 +179,7 @@ namespace RotaLib
 
         private void DetermineBestAvailable(RotaDate friday, Dictionary<RotaDate, SimpleRotaPerson> rotaToFill, params Dictionary<RotaDate, SimpleRotaPerson>[] rotasToAvoidClash)
         {
+            var rotaResult = RotaResults.First(x => x.Date == friday.DateTime);
 
             SimpleRotaPerson leastOnCall = null;
             int onCall = int.MaxValue;
@@ -193,6 +214,14 @@ namespace RotaLib
             if (leastOnCall != null)
             {
                 rotaToFill[friday] = leastOnCall;
+                if (rotaToFill == OnCallRota)
+                    rotaResult.OnCall = leastOnCall.Name;
+                if (rotaToFill == SurgeryRota)
+                    rotaResult.Surgery = leastOnCall.Name;
+                if (rotaToFill == OnCallRegistrarCoverRota)
+                    rotaResult.Cover = leastOnCall.Name;
+                if (rotaToFill == ProtectedRota)
+                    rotaResult.Protected = leastOnCall.Name;
             }
 
         }
