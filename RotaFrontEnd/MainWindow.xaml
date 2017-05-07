@@ -17,25 +17,17 @@
             <ColumnDefinition Width="115*"/>
             <ColumnDefinition Width="63*"/>
         </Grid.ColumnDefinitions>
-        <ListBox x:Name="dateListBox" Grid.ColumnSpan="3" Margin="0,10,60,0" Height="100" VerticalAlignment="Top" Grid.RowSpan="2" HorizontalAlignment="Right" Width="110"/>
-        <DatePicker x:Name="leavePicker" HorizontalAlignment="Right" Margin="0,38,10,0" VerticalAlignment="Top" Width="108" Grid.Column="2" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
-        <Button x:Name="button3" Content="Add" HorizontalAlignment="Right" Margin="0,66,10,0" Width="108" Click="addDate" Grid.Column="2" Grid.ColumnSpan="2" VerticalAlignment="Top"/>
-        <Button x:Name="button3_Copy" Content="Remove" HorizontalAlignment="Right" Margin="0,2,10,0" Width="108" Click="removeDate" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Top"/>
-        <ComboBox x:Name="comboBox" HorizontalAlignment="Right" Margin="0,11,10,0" VerticalAlignment="Top" Width="108" Grid.Column="2" Grid.ColumnSpan="2">
-            <ComboBoxItem Content="Annual Leave"/>
-            <ComboBoxItem Content="On Call"/>
-            <ComboBoxItem Content="Cover"/>
-            <ComboBoxItem Content="Surgery"/>
-            <ComboBoxItem Content="Protected"/>
-        </ComboBox>
-        <TextBox x:Name="textBox1" Grid.ColumnSpan="4" Margin="10,427,10,0" TextWrapping="Wrap" Grid.Row="1" Height="143" VerticalAlignment="Top"/>
-        <Button x:Name="button4" Content="Make Rota" HorizontalAlignment="Right" Margin="0,42,138,0" Width="108" Click="makeRota" Grid.Column="1" VerticalAlignment="Top" Height="36" Grid.Row="1"/>
-        <Button x:Name="button5" Grid.ColumnSpan="2" Content="Save Hist. Rota" Margin="67,42,10,0" Grid.Row="1" VerticalAlignment="Top" Height="36" Click="saveHistoricalRota" Grid.Column="2"/>
+        <TextBox x:Name="textBox1" Grid.ColumnSpan="4" Margin="10,0,10,10" TextWrapping="Wrap" Grid.Row="1" Height="143" VerticalAlignment="Bottom"/>
+        <Button x:Name="button4" Content="Make Rota" HorizontalAlignment="Right" Margin="0,52,10,0" Width="108" Click="makeRota" Grid.Column="2" VerticalAlignment="Top" Height="36" Grid.Row="1" Grid.ColumnSpan="2"/>
         <DataGrid x:Name="dataGrid" Grid.ColumnSpan="4" Margin="10,93,10,158" Grid.Row="1"/>
-        <DataGrid x:Name="staffDataGrid" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Height="99" Grid.RowSpan="2" Width="247">
+        <DataGrid x:Name="staffDataGrid" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Height="99" Grid.RowSpan="2" Width="247" IsSynchronizedWithCurrentItem="True">
             <DataGrid.ItemBindingGroup>
                 <BindingGroup/>
             </DataGrid.ItemBindingGroup>
         </DataGrid>
+        <DatePicker x:Name="startDatePicker" Grid.Column="2" Margin="69,12,16,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Text="Start Date"/>
+        <DatePicker x:Name="endDatePicker" Grid.Column="2" Margin="69,55,16,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Text="hoh" IsTodayHighlighted="False"/>
+        <Label x:Name="label" Content="Start Date" Grid.Column="2" HorizontalAlignment="Left" Margin="6,12,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label_Copy" Content="End Date" Grid.Column="2" HorizontalAlignment="Left" Margin="6,55,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

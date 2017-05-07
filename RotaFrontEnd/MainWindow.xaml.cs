@@ -2,6 +2,7 @@
 using RotaPrototype;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -30,178 +31,77 @@ namespace RotaFrontEnd
         string personSaveFile = "rotaPeople.xml";
         SimpleFridayRota rota;
         SimpleRotaPerson currentPersonSelection;
-
+        CultureInfo ci;
         public MainWindow()
         {
             InitializeComponent();
 
+            ci = new CultureInfo("GB");
+            ci.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+            Thread.CurrentThread.CurrentCulture = ci;
+            Thread.CurrentThread.CurrentUICulture = ci;
+
             rota = new SimpleFridayRota();
 
-            LoadRotaPeople();
+            LoadRota();
 
-          
 
-            comboBox.SelectedIndex = 0;
-
-            comboBox.SelectionChanged += dateViewChanged;
-
-            dateListBox.SelectionChanged += dateListBoxSelectionChanged;
+            startDatePicker.SelectedDateChanged += StartDatePicker_SelectedDateChanged;
+            endDatePicker.SelectedDateChanged += EndDatePicker_SelectedDateChanged;
 
             textBox1.IsReadOnly = true;
 
-            CultureInfo ci = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
-            ci.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
-            Thread.CurrentThread.CurrentCulture = ci;
+
+            staffDataGrid.CanUserAddRows = true;
+            staffDataGrid.CanUserDeleteRows = true;
+
+            dataGrid.CellEditEnding += DataGrid_CellEditEnding;
+
+            this.Closing += MainWindow_Closing;
 
 
-            staffDataGrid.CellEditEnding += StaffDataGrid_CellEditEnding;
-
-            staffDataGrid.AddingNewItem += StaffDataGrid_AddingNewItem;
 
         }
 
-        private void StaffDataGrid_AddingNewItem(object sender, AddingNewItemEventArgs e)
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            e.NewItem = new SimpleRotaPerson();
+            DataGridColumn col1 = e.Column;
+            DataGridRow row1 = e.Row;
+            int row_index = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(row1);
+            int col_index = col1.DisplayIndex;
+
+            rota.RotaResults[row_index].SetUserFlag(col_index);
+
+          
         }
 
-        private void StaffDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void EndDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            rota.endTime = endDatePicker.SelectedDate;
+        }
+        private void StartDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            rota.startTime = startDatePicker.SelectedDate;
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SaveStaffRoster();
+            rota.SerializeRota();
         }
 
-        private void dateListBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            leavePicker.SelectedDate = dateListBox.SelectedItem as DateTime?;
-        }
-
-        private void dateViewChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //var person = personListBox.SelectedItem as SimpleRotaPerson;
-            //currentPersonSelection = person;
-            //if (person != null)
-            //{
-            //    RefreshDateBox(person);
-            //}
-        }
-
-       
-
-        private void RefreshDateBox(SimpleRotaPerson person)
-        {
-            dateListBox.ItemsSource = null;
-            dateListBox.Items.Clear();
-
-            if (comboBox.SelectedIndex == 0)
-                dateListBox.ItemsSource = person.AnnualLeaveDates;
-            else
-            {
-
-                if (comboBox.SelectedIndex == 1)
-                    PopulateListBoxWithSpecificRotaDates(currentPersonSelection, rota.OnCallRota);
-                if (comboBox.SelectedIndex == 2)
-                    PopulateListBoxWithSpecificRotaDates(currentPersonSelection, rota.OnCallRegistrarCoverRota);
-                if (comboBox.SelectedIndex == 3)
-                    PopulateListBoxWithSpecificRotaDates(currentPersonSelection, rota.SurgeryRota);
-                if (comboBox.SelectedIndex == 4)
-                    PopulateListBoxWithSpecificRotaDates(currentPersonSelection, rota.ProtectedRota);
-
-            }
-        }
-
-        private void PopulateListBoxWithSpecificRotaDates(SimpleRotaPerson currentPersonSelection, Dictionary<RotaDate, SimpleRotaPerson> rota)
-        {
-            dateListBox.ItemsSource = null;
-            dateListBox.Items.Clear();
-
-            var knownOnCallDates = rota.Keys.ToList().FindAll(x => rota[x].Name == currentPersonSelection.Name);
-
-            foreach (RotaDate d in knownOnCallDates)
-                dateListBox.Items.Add(d.DateTime);
-        }
-
-       
-
-       
-
-     
-
-        private void addDate(object sender, RoutedEventArgs e)
-        {
-            if (comboBox.SelectedIndex == 0)
-            {
-
-                if (currentPersonSelection != null)
-                {
-                    if (leavePicker.SelectedDate.HasValue)
-                        currentPersonSelection.AddAnnualLeave(leavePicker.SelectedDate.Value);
-                }
-            }
-            else
-            {
-                if (currentPersonSelection != null)
-                {
-                    if (leavePicker.SelectedDate.HasValue)
-                    {
-                        if (comboBox.SelectedIndex == 1)
-                            rota.SetRotaForDate(rota.OnCallRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
-                        if (comboBox.SelectedIndex == 2)
-                            rota.SetRotaForDate(rota.OnCallRegistrarCoverRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
-                        if (comboBox.SelectedIndex == 3)
-                            rota.SetRotaForDate(rota.SurgeryRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
-                        if (comboBox.SelectedIndex == 4)
-                            rota.SetRotaForDate(rota.ProtectedRota, new RotaDate(leavePicker.SelectedDate.Value), currentPersonSelection);
 
 
-                    }
-
-                    RefreshDateBox(currentPersonSelection);
-                }
-            }
-        }
-
-        private void removeDate(object sender, RoutedEventArgs e)
-        {
-            if (comboBox.SelectedIndex == 0)
-            {
-                if (currentPersonSelection != null)
-                {
-                    if (leavePicker.SelectedDate.HasValue)
-                        if (currentPersonSelection.AnnualLeaveDates.Contains(leavePicker.SelectedDate.Value))
-                            currentPersonSelection.AnnualLeaveDates.Remove(leavePicker.SelectedDate.Value);
-                }
-            }
-            else
-            {
-                if (currentPersonSelection != null)
-                {
-                    if (leavePicker.SelectedDate.HasValue)
-                    {
-                        if (comboBox.SelectedIndex == 1)
-                            rota.ClearRotaForDate(rota.OnCallRota, new RotaDate(leavePicker.SelectedDate.Value));
-                        if (comboBox.SelectedIndex == 2)
-                            rota.ClearRotaForDate(rota.OnCallRegistrarCoverRota, new RotaDate(leavePicker.SelectedDate.Value));
-                        if (comboBox.SelectedIndex == 3)
-                            rota.ClearRotaForDate(rota.SurgeryRota, new RotaDate(leavePicker.SelectedDate.Value));
-
-                        if (comboBox.SelectedIndex == 4)
-                            rota.ClearRotaForDate(rota.ProtectedRota, new RotaDate(leavePicker.SelectedDate.Value));
-
-
-
-
-                    }
-
-                    RefreshDateBox(currentPersonSelection);
-                }
-            }
-        }
 
         private void makeRota(object sender, RoutedEventArgs e)
         {
-            rota.MakeRota();
-            textBox1.Text =  rota.GetRotaCountPrintOut();
-            dataGrid.ItemsSource = rota.RotaResults;
+            if (startDatePicker.SelectedDate.HasValue && endDatePicker.SelectedDate.HasValue)
+            {
+
+                rota.GenerateRota();
+                textBox1.Text = rota.GetRotaCountPrintOut();
+                dataGrid.ItemsSource = rota.RotaResults;
+            }
         }
 
         private void savePeopleButton(object sender, RoutedEventArgs e)
@@ -238,10 +138,11 @@ namespace RotaFrontEnd
             File.WriteAllText(personSaveFile, xml);
         }
 
-        private void LoadRotaPeople()
+        private void LoadRota()
         {
             if (!File.Exists(personSaveFile))
                 return;
+
             XmlSerializer serializer = new XmlSerializer(typeof(RotaPersonCollection));
 
             StreamReader reader = new StreamReader(personSaveFile);
@@ -251,19 +152,21 @@ namespace RotaFrontEnd
                 rota.RotaPersons.Add(person);
 
             staffDataGrid.ItemsSource = people.RotaPeople;
-            
 
 
             reader.Close();
 
 
-            rota.DeserializeHistoricalRota();
+            rota.DeserializeRota(ci);
 
+            dataGrid.ItemsSource = rota.RotaResults;
+
+            if (rota.startTime.HasValue)
+                startDatePicker.SelectedDate = rota.startTime;
+            if (rota.endTime.HasValue)
+                endDatePicker.SelectedDate = rota.endTime;
         }
 
-        private void saveHistoricalRota(object sender, RoutedEventArgs e)
-        {
-            rota.SerializeHistoricalRota();
-        }
+
     }
 }
