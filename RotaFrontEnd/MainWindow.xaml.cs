@@ -65,6 +65,7 @@ namespace RotaFrontEnd
 
             dataGrid.CanUserAddRows = false;
             dataGrid.CanUserDeleteRows = false;
+            dataGrid.ItemsSource = rota.RotaResults;
             dataGrid.CellEditEnding += DataGrid_CellEditEnding;
 
 
@@ -89,7 +90,6 @@ namespace RotaFrontEnd
 
         }
        
-
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             DataGridColumn col1 = e.Column;
@@ -120,6 +120,7 @@ namespace RotaFrontEnd
         {
             rota.endTime = endDatePicker.SelectedDate;
         }
+
         private void StartDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             rota.startTime = startDatePicker.SelectedDate;
