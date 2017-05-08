@@ -69,6 +69,7 @@ namespace RotaLib
         public string Protected { get { return protectedTime.Value; } set { protectedTime.Value = value; } }
         public string OnLeave { get { return onLeave.Value; } set { onLeave.Value = value; } }
         public bool Locked { get { return rotaDate.Locked; } set { rotaDate.Locked = value; } }
+        public string Notes { get; set; }
         public RotaDate rotaDate;
         public RotaCell onCall;
         public RotaCell surgery;
@@ -91,6 +92,7 @@ namespace RotaLib
             Protected = "";
             Cover = "";
             OnLeave = "";
+            Notes = "";
         }
 
         public RotaRow(string deserializedString, CultureInfo ci)
@@ -106,6 +108,7 @@ namespace RotaLib
             protectedTime = RotaCell.Parse(split[3]);
             cover = RotaCell.Parse(split[4]);
             onLeave = RotaCell.Parse(split[5]);
+            Notes = split[7];
 
         }
 
@@ -136,7 +139,7 @@ namespace RotaLib
         {
 
             return Date + delimiter + onCall.ToString() + delimiter + surgery.ToString() + delimiter + protectedTime.ToString()
-                + delimiter + cover.ToString() + delimiter + onLeave.ToString() + delimiter + Locked;
+                + delimiter + cover.ToString() + delimiter + onLeave.ToString() + delimiter + Locked + delimiter + Notes;
         }
 
         public void ClearNonUserData()
