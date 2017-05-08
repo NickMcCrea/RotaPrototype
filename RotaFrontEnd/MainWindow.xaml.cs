@@ -128,8 +128,28 @@ namespace RotaFrontEnd
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveStaffRoster();
-            rota.SerializeRota();
+
+            if (startDatePicker.SelectedDate.Value > rota.RotaResults[0].rotaDate.DateTime)
+            {
+
+                MessageBoxResult result = MessageBox.Show("You have moved the start date - dates before the new start date will be purged from the rota. Confirm?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    SaveStaffRoster();
+                    rota.SerializeRota();
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
+            }
+            else
+            {
+                SaveStaffRoster();
+                rota.SerializeRota();
+            }
+
+            
         }
 
         private void SetColours()
@@ -181,7 +201,7 @@ namespace RotaFrontEnd
 
         }
 
-        private void makeRota(object sender, RoutedEventArgs e)
+        private void MakeRota(object sender, RoutedEventArgs e)
         {
 
             if (startDatePicker.SelectedDate.HasValue && endDatePicker.SelectedDate.HasValue)
@@ -198,7 +218,7 @@ namespace RotaFrontEnd
             button4.Background = Brushes.LightGray;
         }
 
-        private void savePeopleButton(object sender, RoutedEventArgs e)
+        private void SavePeopleButton(object sender, RoutedEventArgs e)
         {
             SaveStaffRoster();
 
