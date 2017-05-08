@@ -18,11 +18,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace RotaFrontEnd
 {
+
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -32,6 +36,9 @@ namespace RotaFrontEnd
         SimpleFridayRota rota;
         SimpleRotaPerson currentPersonSelection;
         CultureInfo ci;
+        DispatcherTimer t;
+      
+
         public MainWindow()
         {
             InitializeComponent();
@@ -54,14 +61,34 @@ namespace RotaFrontEnd
 
             staffDataGrid.CanUserAddRows = true;
             staffDataGrid.CanUserDeleteRows = true;
+            staffDataGrid.ItemsSource = rota.RotaPersons;
 
+            dataGrid.CanUserAddRows = false;
+            dataGrid.CanUserDeleteRows = false;
             dataGrid.CellEditEnding += DataGrid_CellEditEnding;
 
+
+            t = new DispatcherTimer();
+            t.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            t.Tick += T_Tick;
             this.Closing += MainWindow_Closing;
 
 
+        }
+
+        private void T_Tick(object sender, EventArgs e)
+        {
+            SetColours();
+            t.Stop();
+        }
+
+        private void dtGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+
+            SetColours();
 
         }
+       
 
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -70,9 +97,23 @@ namespace RotaFrontEnd
             int row_index = ((DataGrid)sender).ItemContainerGenerator.IndexFromContainer(row1);
             int col_index = col1.DisplayIndex;
 
-            rota.RotaResults[row_index].SetUserFlag(col_index);
+            if (e.EditingElement is TextBox)
+            {
 
-          
+                if (string.IsNullOrEmpty(((TextBox)e.EditingElement).Text))
+                {
+                    rota.RotaResults[row_index].SetUserFlag(col_index, false);
+
+                }
+                else
+                    rota.RotaResults[row_index].SetUserFlag(col_index, true);
+
+
+                SetColours();
+
+                button4.Background = Brushes.Red;
+            }
+
         }
 
         private void EndDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -90,18 +131,70 @@ namespace RotaFrontEnd
             rota.SerializeRota();
         }
 
+        private void SetColours()
+        {
+            int rowNum = 0;
+            foreach (var row in rota.RotaResults)
+            {
+                var onCallCell = dataGrid.GetCell(rowNum, 1);
+                SetCellColour(onCallCell, row.onCall.UserOverride, row.Locked);
+
+                var coverCell = dataGrid.GetCell(rowNum, 2);
+                SetCellColour(coverCell, row.cover.UserOverride, row.Locked);
+
+                var surgeryCell = dataGrid.GetCell(rowNum, 3);
+                SetCellColour(surgeryCell, row.surgery.UserOverride, row.Locked);
+
+                var protectedCell = dataGrid.GetCell(rowNum, 4);
+                SetCellColour(protectedCell, row.protectedTime.UserOverride, row.Locked);
+
+                var leaveCell = dataGrid.GetCell(rowNum, 5);
+                SetCellColour(leaveCell, row.onLeave.UserOverride, row.Locked);
+
+                rowNum++;
+            }
+
+       
 
 
+        }
+
+        private void SetCellColour(DataGridCell cell, bool userOverride, bool rowLocked)
+        {
+            if (cell == null)
+                return;
+
+            if (userOverride)
+            {
+                cell.Background = Brushes.LightBlue;
+              
+            }
+            else
+            {
+                if (rowLocked)
+                    cell.Background = Brushes.Gray;
+                else
+                    cell.Background = Brushes.LightGray;
+                
+            }
+
+        }
 
         private void makeRota(object sender, RoutedEventArgs e)
         {
+
             if (startDatePicker.SelectedDate.HasValue && endDatePicker.SelectedDate.HasValue)
             {
 
                 rota.GenerateRota();
                 textBox1.Text = rota.GetRotaCountPrintOut();
-                dataGrid.ItemsSource = rota.RotaResults;
+                dataGrid.Items.Refresh();
+
             }
+
+            t.Start();
+
+            button4.Background = Brushes.LightGray;
         }
 
         private void savePeopleButton(object sender, RoutedEventArgs e)
@@ -151,8 +244,10 @@ namespace RotaFrontEnd
             foreach (SimpleRotaPerson person in people.RotaPeople)
                 rota.RotaPersons.Add(person);
 
-            staffDataGrid.ItemsSource = people.RotaPeople;
+            staffDataGrid.ItemsSource = rota.RotaPersons;
 
+            staffDataGrid.CanUserAddRows = true;
+            staffDataGrid.CanUserDeleteRows = true;
 
             reader.Close();
 
@@ -165,7 +260,12 @@ namespace RotaFrontEnd
                 startDatePicker.SelectedDate = rota.startTime;
             if (rota.endTime.HasValue)
                 endDatePicker.SelectedDate = rota.endTime;
+
+            textBox1.Text = rota.GetRotaCountPrintOut();
+
+
         }
+
 
 
     }
