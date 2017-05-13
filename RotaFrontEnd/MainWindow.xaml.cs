@@ -128,19 +128,26 @@ namespace RotaFrontEnd
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
-            if (startDatePicker.SelectedDate.Value > rota.RotaResults[0].rotaDate.DateTime)
+            if (startDatePicker.SelectedDate.HasValue && rota.RotaResults.Count > 0)
             {
-
-                MessageBoxResult result = MessageBox.Show("You have moved the start date - dates before the new start date will be purged from the rota. Confirm?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
+                if (startDatePicker.SelectedDate.Value > rota.RotaResults[0].rotaDate.DateTime)
                 {
-                    SaveStaffRoster();
-                    rota.SerializeRota();
+
+                    MessageBoxResult result = MessageBox.Show("You have moved the start date - dates before the new start date will be purged from the rota. Confirm?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        SaveStaffRoster();
+                        rota.SerializeRota();
+                    }
+                    else
+                    {
+                        e.Cancel = true;
+                    }
                 }
                 else
                 {
-                    e.Cancel = true;
+                    SaveStaffRoster();
+                    rota.SerializeRota();
                 }
             }
             else
